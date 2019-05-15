@@ -1,7 +1,4 @@
-# onefootball_interview
-Interview task for Onefootball
-
-The task
+# Onefootball
 Given API endpoint: https://vintagemonster.onefootball.com/api/teams/en/%team_id%.json (%team_id% must be replaced with a real number) Using the API endpoint, find the following teams by name:
 * Germany
 * England
@@ -20,7 +17,3 @@ Example:
 1. Alexander Mustermann; 25; France, Manchester Utd
 2. Brad Exampleman; 30; Arsenal
 3. ...
-
-Requirements – go >= 1.8
-
-Upload the source code of you application to github (or any other public repo) and send us the link.
