@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -15,7 +16,7 @@ const (
 	// TIMEOUT defines the total number of seconds to wait before
 	// timing out the channel, and moving on with the number of players
 	// gathered by the API.
-	TIMEOUT = 5
+	TIMEOUT = 1
 
 	// API defines the unformatted URL to request team information
 	// given the team ID
@@ -48,15 +49,13 @@ func main() {
 
 	// Make parallel requests up to the limit
 	// configured by REQUESTS
-	for i := 0; i < REQUESTS; i++ {
-		if counter == len(clubs) {
-			break
-		}
+	// for i := 0; i < REQUESTS; i++ {
+	// if counter == len(clubs) {
+	// break
+	// }
 
-		// Format number into the URL as per docs
-		url := fmt.Sprintf(API, i+1)
-		go fetchClub(c, url)
-	}
+	// fetchClub(i + 1)
+	// }
 
 	// Pull the matched teams off the channel
 	// and insert the players into a map to
@@ -87,27 +86,50 @@ func main() {
 	}
 }
 
-// Fetch the club and check if it is one
-// that we are looking for
-func fetchClub(c chan Response, url string) {
+func fetchClub(clubID int, host string) (*Response, error) {
+	url := fmt.Sprintf(host+"/api/teams/en/%d.json", clubID)
+
 	var res Response
 
 	resp, err := http.Get(url)
 	if err != nil {
-		panic("Failed to get data from API")
+		return nil, errors.New("Failed to get response from API")
 	}
 
 	defer resp.Body.Close()
 
 	err = json.NewDecoder(resp.Body).Decode(&res)
 	if err != nil {
-		fmt.Println(err)
+		return nil, errors.New("Response body not valid")
 	}
 
-	if contains(clubs, res.Data.Team.Name) {
-		c <- res
-	}
+	return &res, nil
 }
+
+// Fetch the club and check if it is one
+// that we are looking for
+// func fetchClub(c chan Response, url string) error {
+// var res Response
+
+// resp, err := http.Get(url)
+// if err != nil {
+// panic("Failed to get data from API")
+// }
+
+// defer resp.Body.Close()
+
+// err = json.NewDecoder(resp.Body).Decode(&res)
+// if err != nil {
+// fmt.Println(err)
+// return errors.New("Response body not valid")
+// }
+
+// if contains(clubs, res.Data.Team.Name) {
+// c <- res
+// }
+
+// return nil
+// }
 
 // Insert player in map with list of teams
 func insertPlayers(m map[string]Player, team Team) {

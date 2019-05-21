@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"net/http"
+	"net/http/httptest"
+	"testing"
+)
 
 func TestInsertPlayers(t *testing.T) {
 	m := make(map[string]Player)
@@ -29,4 +33,16 @@ func TestInsertPlayers(t *testing.T) {
 	if numTeams != expected {
 		t.Errorf("Not enough teams for player with multiple associations got: %d expected: %d", numTeams, expected)
 	}
+}
+
+func TestFetchClub(t *testing.T) {
+	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/teams/en/23.json" {
+			t.Error("URL not valid")
+		}
+	}))
+
+	defer s.Close()
+
+	fetchClub(22, s.URL)
 }
